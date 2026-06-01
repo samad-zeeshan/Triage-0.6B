@@ -1,0 +1,16 @@
+# Training / evaluation (notebook 02) — pinned to the versions that produced the results
+transformers==4.55.2
+trl==0.21.0
+peft==0.17.0
+accelerate==1.10.0
+datasets>=2.20
+
+# Core
+torch
+numpy
+pandas
+scikit-learn
+
+# Teacher labeling (notebook 01)
+openai            # DeepSeek is called through the OpenAI-compatible client
+kagglehub
