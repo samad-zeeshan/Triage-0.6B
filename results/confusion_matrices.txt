@@ -1,0 +1,22 @@
+Held-out evaluation — 1,200 tickets, never seen during training.
+Verbatim output of the eval cell in notebooks/02_train_and_eval.ipynb.
+
+baseline (always 'high'): 42.4%
+
+===== BASE =====
+valid JSON 1200/1200 (100.0%) | priority 38.3% | category 64.2%
+pred    high  medium  low  none
+gold
+high     251     244   13     1
+medium    89     201    9     0
+low       67     317    8     0
+
+===== FINE-TUNED =====
+valid JSON 1200/1200 (100.0%) | priority 87.3% | category 89.7%
+pred    high  medium  low
+gold
+high     434      74    1
+medium    33     231   35
+low        0       9  383
+
+>>> priority accuracy: 38.3% -> 87.3%  [+49.0 pts]
