@@ -4,11 +4,25 @@ A 600M-parameter model that reads a support email and returns structured triage 
 
 The model is a distilled copy of a frontier teacher. Distillation here means something simple. Take a strong model (DeepSeek), use it to label a pile of tickets, then fine-tune a small student (Qwen3-0.6B) to reproduce those labels. The student does the teacher's job at a fraction of the size and cost.
 
-Here is the task in one example. An email comes in: "Hi, no rush at all, but I was wondering how I'd go about switching from the monthly plan to the annual one whenever I get a chance. Just curious about the process." The model returns:
+Here is the task in one example. An email comes in:
+
+> "Hi, no rush at all, but I was wondering how I'd go about switching from the monthly plan to the annual one whenever I get a chance. Just curious about the process."
+
+Same email, two models.
+
+**Base Qwen3-0.6B** ignores the task and answers the customer instead:
+
+> "Switching from a monthly to an annual plan is a common requirement, but the exact process depends on your service provider's specific policies. Here's a general guide: 1. Confirm Your Current Plan... 2. Create an Annual Account... 3. Update Subscription Details..."
+
+No JSON. No `category`, `priority`, or `account_id`. The base model doesn't misclassify the ticket, it doesn't register that classification is the task at all.
+
+**Fine-tuned:**
 
 ```json
 {"category": "Product Support", "priority": "low", "account_id": null}
 ```
+
+Ground truth is `priority: low`: a polite, non-blocking question is not urgent. The gap, from "writes the customer an essay" to "returns clean structured triage," is what training bought. This is the 49-point priority jump from the headline table, made concrete.
 
 Keywords for the skim: knowledge distillation, LoRA fine-tuning, PEFT, supervised fine-tuning, Qwen3-0.6B, Hugging Face Transformers, PyTorch, structured JSON output, text classification, GGUF quantization, held-out evaluation.
 
