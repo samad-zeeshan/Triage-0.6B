@@ -42,6 +42,22 @@ Read the priority row slowly. The base model scores 38.3%. A dumb classifier tha
 
 ---
 
+## How it works
+
+DeepSeek labels support emails, a small Qwen3-0.6B model is fine-tuned with LoRA to copy those labels, and the result runs offline in LM Studio.
+
+![Triage-0.6B system overview](docs/diagrams/overview.png)
+The full system: teacher labeling, LoRA fine-tune, held-out eval, GGUF export and the offline runtime.
+
+![Distillation, training and evaluation pipeline](docs/diagrams/pipeline.png)
+How the data moves through notebooks 01 and 02, from the ticket CSV to the confusion matrices and the GGUF file.
+
+![One support email through the offline model](docs/diagrams/main-flow.png)
+One email going through LM Studio on a local GPU and coming back as `category`, `priority` and `account_id` JSON.
+
+Interactive versions with pan, zoom and theme switch: `docs/diagrams/overview.html`, `docs/diagrams/pipeline.html`, `docs/diagrams/main-flow.html`
+
+
 ## Running locally
 
 ![Fine-tuned 0.6B answering a ticket in LM Studio](results/lm_studio.png)
