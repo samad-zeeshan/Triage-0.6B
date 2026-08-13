@@ -1,0 +1,17 @@
+# Same values as the v1 Kaggle run in notebooks/02_train_and_eval.ipynb.
+base_model: Qwen/Qwen3-0.6B
+train_file: data/train_chat.jsonl
+output_dir: out/lora
+lora:
+  r: 16
+  alpha: 16
+  dropout: 0.0
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+batch_size: 4
+grad_accum: 4
+epochs: 2
+learning_rate: 2.0e-4
+warmup_steps: 5
+weight_decay: 0.01
+max_length: 2048
+seed: 3407

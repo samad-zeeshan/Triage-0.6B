@@ -1,0 +1,11 @@
+# deepseek-chat is the alias v1 used. Since 2026 it is served by deepseek-flash in
+# non-thinking mode, about 20 output tokens a ticket. Calling deepseek-flash by name
+# turns thinking on and costs 5 to 50 times more output.
+model: deepseek-chat
+base_url: https://api.deepseek.com
+key_env: DEEPSEEK_API_KEY
+workers: 8
+# USD per million tokens, peak rate, from https://api-docs.deepseek.com/quick_start/pricing
+# read on 2026-09-26. Peak is the conservative choice for a support inbox in office hours.
+price_input_per_m: 0.30
+price_output_per_m: 1.20
