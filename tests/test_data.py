@@ -69,3 +69,11 @@ def test_schema_rejects_extra_keys_and_bad_enum():
     extra = json.dumps({"category": "Product Support", "priority": "low",
                         "account_id": None, "note": "x"})
     assert not data.parse_output(extra)["schema_valid"]
+
+
+@pytest.mark.skipif(not SOURCE_CSV.exists(), reason="source CSV not downloaded")
+def test_committed_validation_file_matches_rebuild():
+    _, _, val = data.build_splits(data.load_source(SOURCE_CSV))
+    committed = data.read_jsonl(ROOT / "data/val_emails.jsonl")
+    assert [r["email"] for r in committed] == [
+        data.email_text(r.subject, r.body_aug) for r in val.itertuples()]

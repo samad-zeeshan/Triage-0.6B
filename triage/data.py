@@ -168,3 +168,27 @@ def parse_output(text):
         "account_id": str(acct) if acct is not None and not isinstance(acct, (dict, list)) else None,
     }
     return {"json_valid": json_valid, "schema_valid": schema_valid, "fields": fields}
+
+
+def write_validation(csv_path, out_path):
+    """Write the 600 validation emails. Labels come later from label.py."""
+    _, _, val = build_splits(load_source(csv_path))
+    rows = [{"id": f"val-{i:04d}", "email": email_text(r.subject, r.body_aug),
+             "account_id_true": r.account_id_true, "source_priority": r.priority,
+             "source_category": r.category} for i, r in enumerate(val.itertuples())]
+    write_jsonl(out_path, rows)
+    return rows
+
+
+def fetch_source(path):
+    import urllib.request
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    if not Path(path).exists():
+        urllib.request.urlretrieve(SOURCE_URL, path)
+    return Path(path)
+
+
+if __name__ == "__main__":
+    root = Path(__file__).resolve().parents[1]
+    csv = fetch_source(root / ".cache/tickets.csv")
+    print(len(write_validation(csv, root / "data/val_emails.jsonl")), "validation emails written")
