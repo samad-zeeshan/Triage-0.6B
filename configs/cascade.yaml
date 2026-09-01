@@ -1,0 +1,9 @@
+# Fixed before any test-set numbers existed. A ticket counts as right when both the
+# category and the priority match. The threshold is the lowest one at which the tickets
+# the small model keeps are at least 95 percent right on the validation split.
+target_kept_accuracy: 0.95
+confidence: min_of_category_and_priority
+# Quantization choice: the smallest file whose category and priority accuracy stay
+# within 1 point of the F16 row and whose training-set leak rate is no higher than
+# the test-set control.
+quant_max_drop_points: 1.0

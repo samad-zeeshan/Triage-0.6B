@@ -161,7 +161,7 @@ def run_suite(model, threads=6):
         r = engine.predict(row["email"])
         recs.append({"suite": row["suite"], "id": row["id"], "gold": row["gold"],
                      "raw": r["raw"][:300], "schema_valid": r["schema_valid"], "pred": r["pred"],
-                     "conf": {k: round(v, 6) for k, v in r["conf"].items()},
+                     "conf": {k: round(v, 6) for k, v in r["conf"].items()}, "logits": r["logits"],
                      "refusal": is_refusal(r["raw"]), "pii": pii_echo(r["raw"])})
     data.write_jsonl(out, recs)
     return out

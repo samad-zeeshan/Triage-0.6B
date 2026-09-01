@@ -74,3 +74,31 @@ def field_metrics(logits, y, t):
     return {"t": round(float(t), 4), "acc": float(correct.mean()), "ece": ece(conf, correct),
             "brier": brier(p, y), "nll": nll(logits, y, t),
             "reliability": reliability(conf, correct)}
+
+
+def verbalized_run(level="q8_0", n=100, threads=6):
+    """Ask the model to state its own confidence, to compare with the token readout.
+
+    A model tuned to emit exactly three keys may simply ignore the request. That is a result."""
+    import json
+    import re
+    from pathlib import Path
+
+    from triage import data, infer
+    root = Path(__file__).resolve().parents[1]
+    system = data.SYSTEM + ('\nconfidence: also add a key "confidence" with a number from 0 to 100 '
+                            "saying how sure you are about the priority.")
+    engine = infer.Engine(infer.model_path(level), n_threads=threads)
+    recs = []
+    for row in data.read_jsonl(root / "data/val_emails.jsonl")[:n]:
+        r = engine.predict(row["email"], score=False, system=system)
+        m = re.search(r'"confidence"\s*:\s*"?(\d+(?:\.\d+)?)', r["raw"])
+        recs.append({"id": row["id"], "raw": r["raw"], "schema_valid": r["schema_valid"],
+                     "pred": r["pred"], "verbalized": float(m.group(1)) if m else None})
+    data.write_jsonl(root / f"eval/runs/verbal-{level}.jsonl", recs)
+    return recs
+
+
+if __name__ == "__main__":
+    recs = verbalized_run()
+    print(sum(r["verbalized"] is not None for r in recs), "of", len(recs), "gave a number")
