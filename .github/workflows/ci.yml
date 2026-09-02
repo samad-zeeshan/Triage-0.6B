@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu ".[dev]"
+      - name: Source tickets for the split tests
+        run: python -m triage.data
+      - name: Tests, including results and README drift
+        run: python -m pytest -q
+      - name: README tables match eval/results
+        run: python -m triage.readme --check
+
+  gguf-subset:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Is the model file published
+        id: model
+        run: |
+          url="$(python -c "import yaml;c=yaml.safe_load(open('configs/models.yaml'));print(c['release']+'/'+c['models']['q8_0']['file'])")"
+          if curl -sfIL "$url" > /dev/null; then echo "ok=true" >> "$GITHUB_OUTPUT"
+          else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::notice::GGUF release asset not published, subset check skipped. Run 'make check' locally."; fi
+      - uses: actions/cache@v4
+        if: steps.model.outputs.ok == 'true'
+        with:
+          path: models
+          key: gguf-${{ hashFiles('configs/models.yaml') }}
+      - name: Install
+        if: steps.model.outputs.ok == 'true'
+        run: pip install --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu ".[dev]"
+      - name: Decoding study and eval on a 40-ticket CPU subset
+        if: steps.model.outputs.ok == 'true'
+        run: |
+          python -m triage.export fetch q8_0
+          python -m triage.check -n 40
