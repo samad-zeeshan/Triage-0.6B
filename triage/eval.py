@@ -215,9 +215,8 @@ def quantization():
         if not (RUNS / f"{run}.jsonl").exists():
             continue
         rows = load_run(run)
-        path = ROOT / "models" / mcfg["models"][level]["file"]
         block = {f: stats.summarise(correct(rows, f)) for f in data.FIELDS}
-        block["size_mb"] = round(path.stat().st_size / 1e6) if path.exists() else mcfg["models"][level].get("size_mb")
+        block["size_mb"] = mcfg["models"][level]["size_mb"]
         block["agrees_with_q8_0"] = round(float(np.mean([a["modes"]["native"]["pred"] == b["modes"]["native"]["pred"]
                                                          for a, b in zip(rows, ref)])), 4)
         block["priority_vs_q8_0_p"] = stats.mcnemar(correct(rows, "priority"), correct(ref, "priority"))
@@ -294,6 +293,22 @@ def trust():
     return out
 
 
+def geometry(level="q8_0"):
+    """Accuracy and confidence by how mixed each ticket's neighbourhood is."""
+    geo = {g["id"]: g for g in json.loads((RUNS / f"geometry-{level}.json").read_text(encoding="utf-8"))}
+    rows = load_run(f"{level}-test")
+    purity = np.array([geo[r["id"]]["purity"] for r in rows])
+    ok = correct(rows, "priority")
+    conf = np.array([r["conf"]["priority"] for r in rows])
+    groups = []
+    for name, lo, hi in (("mixed, under 0.5", 0.0, 0.5), ("partly mixed, 0.5 to 0.8", 0.5, 0.8), ("clean, 0.8 and up", 0.8, 1.01)):
+        m = (purity >= lo) & (purity < hi)
+        groups.append({"neighbourhood": name, "n": int(m.sum()), "priority_acc": float(ok[m].mean()),
+                       "mean_confidence": float(conf[m].mean())})
+    return {"level": level, "k": 10, "groups": groups,
+            "corr_purity_confidence": float(np.corrcoef(purity, conf)[0, 1])}
+
+
 def build():
     RESULTS.mkdir(parents=True, exist_ok=True)
     mcfg = yaml.safe_load(open(ROOT / "configs/models.yaml", encoding="utf-8"))
@@ -301,7 +316,7 @@ def build():
     outputs = {"headline": headline, "decoding": decoding,
                "calibration": lambda: calibration(deployed),
                "cascade": lambda: cascade_result(deployed),
-               "quantization": quantization, "trust": trust}
+               "quantization": quantization, "trust": trust, "geometry": geometry}
     for name, fn in outputs.items():
         (RESULTS / f"{name}.json").write_text(json.dumps(fn(), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
         print("wrote", name)

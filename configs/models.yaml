@@ -3,19 +3,24 @@ release: https://github.com/samad-zeeshan/Triage-0.6B/releases/download/model-v1
 models:
   base-q8_0:
     file: qwen3-0.6b-base-q8_0.gguf
+    size_mb: 639
     url: https://huggingface.co/Qwen/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q8_0.gguf
     sha256: 9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031
   q8_0:
     file: triage-0.6b-q8_0.gguf
+    size_mb: 639
     sha256: 6ccaa00949b7863f131e518ec6bf99c6987d91891c6690dc80769cc92d9625b1
   f16:
     file: triage-0.6b-f16.gguf
+    size_mb: 1198
     from: q8_0
   q6_k:
     file: triage-0.6b-q6_k.gguf
+    size_mb: 495
     from: q8_0
   q4_k_m:
     file: triage-0.6b-q4_k_m.gguf
+    size_mb: 397
     from: q8_0
 deployed: q8_0
 threads: 8
