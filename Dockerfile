@@ -7,7 +7,7 @@ COPY service service
 COPY configs configs
 COPY eval/results eval/results
 RUN pip install --no-cache-dir --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu ".[service]" \
- && python -m triage.export fetch q8_0
+ && python -m triage.export fetch q6_k
 ENV TRIAGE_THREADS=2
 EXPOSE 8000
 CMD ["uvicorn", "service.app:app", "--host", "0.0.0.0", "--port", "8000"]

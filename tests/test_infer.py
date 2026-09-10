@@ -6,7 +6,7 @@ import pytest
 from triage import data, infer
 from conftest import ROOT, need_model
 
-pytestmark = pytest.mark.model
+
 
 
 @pytest.fixture(scope="module")
@@ -51,3 +51,10 @@ def test_constrained_modes_fix_base_model_structure():
     out = base.predict(email, modes=["native", "outlines", "xgrammar"], score=False)
     assert out["modes"]["outlines"]["schema_valid"]
     assert out["modes"]["xgrammar"]["schema_valid"]
+
+
+def test_missing_model_file_names_the_file(tmp_path):
+    (tmp_path / "configs").mkdir()
+    (tmp_path / "configs/models.yaml").write_text("models:\n  q8_0:\n    file: nope.gguf\n")
+    with pytest.raises(FileNotFoundError, match="nope.gguf"):
+        infer.model_path("q8_0", root=tmp_path)

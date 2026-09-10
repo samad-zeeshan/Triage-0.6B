@@ -209,7 +209,11 @@ class Engine:
 def model_path(name, root=Path(__file__).resolve().parents[1]):
     import yaml
     cfg = yaml.safe_load(open(root / "configs/models.yaml", encoding="utf-8"))
-    return root / "models" / cfg["models"][name]["file"]
+    path = root / "models" / cfg["models"][name]["file"]
+    if not path.exists():
+        raise FileNotFoundError(f"{path} is missing. The model file is not in the repository, "
+                                f"fetch it with `python -m triage.export fetch {name}`.")
+    return path
 
 
 def _compact(result, row):

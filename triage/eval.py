@@ -135,10 +135,12 @@ def calibration(level):
         "acc": float(ok.mean()), "ece": calibrate.ece(conf, ok),
         "reliability": calibrate.reliability(conf, ok)}, "after": None,
         "note": "sequence probability of the extracted value, not rescaled"}
-    verbal = RUNS / f"verbal-{level}.jsonl"
+    # The verbalized check was run once, on Q8_0. It asks whether the tuned model will
+    # state a confidence at all, which does not depend on the quantization level.
+    verbal = RUNS / "verbal-q8_0.jsonl"
     if verbal.exists():
         v = data.read_jsonl(verbal)
-        out["verbalized"] = {"asked": len(v), "gave_a_number": int(sum(r["verbalized"] is not None for r in v)),
+        out["verbalized"] = {"level": "q8_0", "asked": len(v), "gave_a_number": int(sum(r["verbalized"] is not None for r in v)),
                              "schema_valid": int(sum(r["schema_valid"] for r in v))}
     return out
 
@@ -220,6 +222,8 @@ def quantization():
         block["agrees_with_q8_0"] = round(float(np.mean([a["modes"]["native"]["pred"] == b["modes"]["native"]["pred"]
                                                          for a, b in zip(rows, ref)])), 4)
         block["priority_vs_q8_0_p"] = stats.mcnemar(correct(rows, "priority"), correct(ref, "priority"))
+        block["priority_changed_vs_q8_0"] = int(sum(a["modes"]["native"]["pred"]["priority"] != b["modes"]["native"]["pred"]["priority"]
+                                                    for a, b in zip(rows, ref)))
         if "logits" in rows[0]:
             logits = np.array([r["logits"]["priority"] for r in rows])
             y = np.array([data.PRIORITIES.index(r["gold"]["priority"]) for r in rows])
@@ -262,7 +266,6 @@ def trust():
             continue
         rows = data.read_jsonl(path)
         ref = {r["id"]: r for r in load_run(f"{run}-test")}
-        temps = temperatures("q8_0") if model == "tuned" else {"category": 1.0, "priority": 1.0}
         cas = json.loads((RESULTS / "cascade.json").read_text()) if (RESULTS / "cascade.json").exists() else {}
         thr = cas.get("threshold", 0.5)
         b = {}
@@ -285,11 +288,17 @@ def trust():
         b["pii"] = {"n": len(pii), "echoed_any": sum(bool(r["pii"]) for r in pii),
                     "pii_in_account_id": sum(bool(r["pred"]["account_id"]) and bool(set(r["pii"]) - {"email"})
                                              and r["pred"]["account_id"] != r["gold"]["account_id"] for r in pii)}
-        if model == "tuned":
-            conf = _ticket_conf([(r["logits"], r["pred"]) for r in off], temps)
-            b["off_task"]["would_skip_teacher"] = int((conf >= thr).sum())
-            b["off_task"]["threshold"] = thr
         out[model] = b
+    level = deployed()
+    path = RUNS / f"trust-{level}.jsonl"
+    if path.exists() and "tuned" in out:
+        # Whether the cascade would keep an off-task input is a property of the deployed
+        # file and its own temperatures, so it is read from that level's run.
+        off = [r for r in data.read_jsonl(path) if r["suite"] == "off_task"]
+        conf = _ticket_conf([(r["logits"], r["pred"]) for r in off], temperatures(level))
+        out["deployed_off_task"] = {"level": level, "threshold": thr, "n": len(off),
+                                    "schema_valid": sum(r["schema_valid"] for r in off),
+                                    "would_skip_teacher": int((conf >= thr).sum())}
     return out
 
 
@@ -309,13 +318,16 @@ def geometry(level="q8_0"):
             "corr_purity_confidence": float(np.corrcoef(purity, conf)[0, 1])}
 
 
+def deployed():
+    return yaml.safe_load(open(ROOT / "configs/models.yaml", encoding="utf-8"))["deployed"]
+
+
 def build():
     RESULTS.mkdir(parents=True, exist_ok=True)
-    mcfg = yaml.safe_load(open(ROOT / "configs/models.yaml", encoding="utf-8"))
-    deployed = mcfg["deployed"]
+    deployed_level = deployed()
     outputs = {"headline": headline, "decoding": decoding,
-               "calibration": lambda: calibration(deployed),
-               "cascade": lambda: cascade_result(deployed),
+               "calibration": lambda: calibration(deployed_level),
+               "cascade": lambda: cascade_result(deployed_level),
                "quantization": quantization, "trust": trust, "geometry": geometry}
     for name, fn in outputs.items():
         (RESULTS / f"{name}.json").write_text(json.dumps(fn(), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")

@@ -22,5 +22,6 @@ models:
     file: triage-0.6b-q4_k_m.gguf
     size_mb: 397
     from: q8_0
-deployed: q8_0
+# Picked by the rule in configs/cascade.yaml, see eval/results/quantization.json.
+deployed: q6_k
 threads: 8

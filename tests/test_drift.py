@@ -15,7 +15,7 @@ RESULTS = sorted((ROOT / "eval/results").glob("*.json"))
 def test_result_file_rebuilds_from_runs(path):
     builders = {"headline": ev.headline, "decoding": ev.decoding, "quantization": ev.quantization,
                 "trust": ev.trust, "geometry": ev.geometry,
-                "calibration": lambda: ev.calibration("q8_0"), "cascade": lambda: ev.cascade_result("q8_0")}
+                "calibration": lambda: ev.calibration(ev.deployed()), "cascade": lambda: ev.cascade_result(ev.deployed())}
     rebuilt = json.loads(json.dumps(builders[path.stem]()))
     committed = json.loads(path.read_text(encoding="utf-8"))
     assert rebuilt == committed

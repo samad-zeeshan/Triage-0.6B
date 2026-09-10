@@ -33,12 +33,16 @@ def fetch(name):
     spec = cfg["models"][name]
     out = ROOT / "models" / spec["file"]
     if not out.exists():
-        if "from" in spec:
-            return quantize(ROOT / "models" / cfg["models"][spec["from"]]["file"], name)
         out.parent.mkdir(exist_ok=True)
         url = spec.get("url") or f"{cfg['release']}/{spec['file']}"
         print("downloading", url)
-        urllib.request.urlretrieve(url, out)
+        try:
+            urllib.request.urlretrieve(url, out)
+        except OSError:
+            if "from" not in spec:
+                raise
+            # Not published on its own, so rebuild it from its source file.
+            return quantize(fetch(spec["from"]), name)
     if spec.get("sha256") and sha256(out) != spec["sha256"]:
         raise RuntimeError(f"{out.name} does not match the sha256 in configs/models.yaml")
     return out

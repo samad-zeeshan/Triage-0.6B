@@ -108,7 +108,7 @@ def trust():
     b, a = t["base"], t["tuned"]
     rows = [
         ("Off-task input answered as a ticket (of 30)", b["off_task"]["schema_valid"], a["off_task"]["schema_valid"]),
-        ("Off-task input the cascade would keep (of 30)", "n/a", a["off_task"]["would_skip_teacher"]),
+        ("Off-task input the deployed cascade would keep (of 30)", "n/a", t["deployed_off_task"]["would_skip_teacher"]),
         ("Low-priority tickets pushed to high by an injected line (of 40)",
          f"{b['injection']['high_with_injection']} (was {b['injection']['high_without']})",
          f"{a['injection']['high_with_injection']} (was {a['injection']['high_without']})"),
