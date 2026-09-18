@@ -1,0 +1,247 @@
+{
+ "levels": {
+  "f16": {
+   "category": {
+    "acc": 89.9,
+    "ci": [
+     88.2,
+     91.6
+    ],
+    "n": 1200
+   },
+   "priority": {
+    "acc": 87.4,
+    "ci": [
+     85.4,
+     89.3
+    ],
+    "n": 1200
+   },
+   "account_id": {
+    "acc": 96.4,
+    "ci": [
+     95.3,
+     97.4
+    ],
+    "n": 1200
+   },
+   "size_mb": 1198,
+   "agrees_with_q8_0": 0.985,
+   "priority_vs_q8_0_p": 0.7744140624999998,
+   "priority_changed_vs_q8_0": 13,
+   "priority_ece": 0.014134665405965273,
+   "latency_ms": 1481.3,
+   "leak_completion_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_completion_test": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_test": {
+    "hits": 0,
+    "n": 200
+   }
+  },
+  "q8_0": {
+   "category": {
+    "acc": 90.0,
+    "ci": [
+     88.2,
+     91.7
+    ],
+    "n": 1200
+   },
+   "priority": {
+    "acc": 87.2,
+    "ci": [
+     85.3,
+     89.1
+    ],
+    "n": 1200
+   },
+   "account_id": {
+    "acc": 96.4,
+    "ci": [
+     95.3,
+     97.4
+    ],
+    "n": 1200
+   },
+   "size_mb": 639,
+   "agrees_with_q8_0": 1.0,
+   "priority_vs_q8_0_p": 1.0,
+   "priority_changed_vs_q8_0": 0,
+   "priority_ece": 0.021270717018439047,
+   "latency_ms": 1004.6,
+   "leak_completion_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_completion_test": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_test": {
+    "hits": 0,
+    "n": 200
+   }
+  },
+  "q6_k": {
+   "category": {
+    "acc": 89.6,
+    "ci": [
+     87.8,
+     91.2
+    ],
+    "n": 1200
+   },
+   "priority": {
+    "acc": 87.2,
+    "ci": [
+     85.3,
+     89.1
+    ],
+    "n": 1200
+   },
+   "account_id": {
+    "acc": 96.3,
+    "ci": [
+     95.2,
+     97.3
+    ],
+    "n": 1200
+   },
+   "size_mb": 495,
+   "agrees_with_q8_0": 0.91,
+   "priority_vs_q8_0_p": 1.0,
+   "priority_changed_vs_q8_0": 79,
+   "priority_ece": 0.03310897217935585,
+   "latency_ms": 922.5,
+   "leak_completion_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_completion_test": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_test": {
+    "hits": 0,
+    "n": 200
+   }
+  },
+  "q4_k_m": {
+   "category": {
+    "acc": 87.2,
+    "ci": [
+     85.2,
+     89.0
+    ],
+    "n": 1200
+   },
+   "priority": {
+    "acc": 70.9,
+    "ci": [
+     68.3,
+     73.5
+    ],
+    "n": 1200
+   },
+   "account_id": {
+    "acc": 96.4,
+    "ci": [
+     95.3,
+     97.4
+    ],
+    "n": 1200
+   },
+   "size_mb": 397,
+   "agrees_with_q8_0": 0.725,
+   "priority_vs_q8_0_p": 2.9546302447707693e-36,
+   "priority_changed_vs_q8_0": 268,
+   "priority_ece": 0.1537001152256029,
+   "latency_ms": 648.5,
+   "leak_completion_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_completion_test": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_test": {
+    "hits": 0,
+    "n": 200
+   }
+  },
+  "base-q8_0": {
+   "category": {
+    "acc": 64.2,
+    "ci": [
+     61.4,
+     66.8
+    ],
+    "n": 1200
+   },
+   "priority": {
+    "acc": 38.3,
+    "ci": [
+     35.6,
+     41.1
+    ],
+    "n": 1200
+   },
+   "account_id": {
+    "acc": 85.8,
+    "ci": [
+     83.8,
+     87.7
+    ],
+    "n": 1200
+   },
+   "size_mb": 639,
+   "agrees_with_q8_0": 0.2883,
+   "priority_vs_q8_0_p": 7.008218564104169e-128,
+   "priority_changed_vs_q8_0": 715,
+   "priority_ece": 0.2756314689581787,
+   "latency_ms": 1111.8,
+   "leak_completion_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_train": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_completion_test": {
+    "hits": 0,
+    "n": 200
+   },
+   "leak_task_test": {
+    "hits": 0,
+    "n": 200
+   }
+  }
+ },
+ "chosen": "q6_k",
+ "reason": "smallest file within 1.0 point of F16 on category and priority (largest drop 0.3) with no more training-set leaks than the test control",
+ "note": "The F16 master was not kept after the v1 Kaggle run. F16, Q6_K and Q4_K_M are requantized from the Q8_0 file, so they carry Q8_0 rounding plus their own."
+}

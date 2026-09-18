@@ -2,6 +2,7 @@
 
 Embedding is the only step that runs the model. It stores 2D coordinates and neighbour purity, not the vectors."""
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -53,6 +54,11 @@ def _style(plt):
 def _save(fig, name):
     FIG.mkdir(parents=True, exist_ok=True)
     fig.savefig(FIG / name, format="svg", bbox_inches="tight", metadata={"Date": None})
+    # Matplotlib writes an RDF block naming itself and its version. It adds nothing a
+    # reader sees and makes the file change on every library upgrade.
+    path = FIG / name
+    text = re.sub(r"\s*<metadata>.*?</metadata>", "", path.read_text(encoding="utf-8"), flags=re.S)
+    path.write_text(text, encoding="utf-8")
 
 
 def reliability(plt):

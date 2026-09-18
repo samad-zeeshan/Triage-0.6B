@@ -49,7 +49,12 @@ def decoding():
     d = _r("decoding")
     out = ["| Model | Decoding | Exact schema | Category | Priority | Account number |", "|---|---|---|---|---|---|"]
     for model, name in (("base", "Base"), ("tuned", "Fine-tuned")):
-        for mode, label in (("native", "native"), ("outlines", "Outlines"), ("xgrammar", "XGrammar")):
+        modes = (("native", "native"), ("outlines", "Outlines"), ("xgrammar", "XGrammar"))
+        # Three identical rows say less than one row that says they are identical.
+        if all(d[model][m].get("changed_vs_native", 0) == 0 for m, _ in modes[1:]) and all(
+                d[model][m]["schema_valid"]["acc"] == d[model]["native"]["schema_valid"]["acc"] for m, _ in modes):
+            modes = (("native", "all three, same answers"),)
+        for mode, label in modes:
             m = d[model][mode]
             out.append(f"| {name} | {label} | {m['schema_valid']['acc']:.1f} | {m['category']['acc']:.1f} | "
                        f"{m['priority']['acc']:.1f} | {m['account_id']['acc']:.1f} |")
@@ -84,8 +89,8 @@ def cascade():
 
 def quantization():
     q = _r("quantization")
-    names = {"f16": "F16", "q8_0": "Q8_0", "q6_k": "Q6_K", "q4_k_m": "Q4_K_M", "base-q8_0": "Base Q8_0"}
-    out = ["| File | MB | Priority | Category | Account number | Same answer as Q8_0 | ms per ticket, CPU | Leaked training numbers |",
+    names = {"f16": "F16", "q8_0": "Q8_0", "q6_k": "Q6_K", "q4_k_m": "Q4_K_M"}
+    out = ["| File | MB | Priority | Category | Account number | Same answer as Q8_0 | ms per ticket, CPU | Leaks: completion, task, test control |",
            "|---|---|---|---|---|---|---|---|"]
     for level, name in names.items():
         b = q["levels"].get(level)
@@ -95,7 +100,7 @@ def quantization():
         if "leak_completion_train" in b:
             lt, lc = b["leak_completion_train"], b["leak_completion_test"]
             kt = b["leak_task_train"]
-            leak = f"{lt['hits']}/{lt['n']} completion, {kt['hits']}/{kt['n']} task (control {lc['hits']}/{lc['n']})"
+            leak = f"{lt['hits']}/{lt['n']}, {kt['hits']}/{kt['n']}, {lc['hits']}/{lc['n']}"
         lat = f"{b['latency_ms']:.0f}" if b.get("latency_ms") else "n/a"
         chosen = " (deployed)" if level == q["chosen"] else ""
         out.append(f"| {name}{chosen} | {b['size_mb']} | {b['priority']['acc']:.1f} | {b['category']['acc']:.1f} | "
@@ -137,10 +142,10 @@ TABLES = {"headline": headline, "decoding": decoding, "calibration": calibration
 
 def render(text):
     for name, fn in TABLES.items():
-        pattern = re.compile(rf"(<!-- table:{name} -->\n).*?(\n<!-- /table:{name} -->)", re.S)
+        pattern = re.compile(rf"(<!-- table:{name} -->).*?(<!-- /table:{name} -->)", re.S)
         if pattern.search(text):
             body = fn()
-            text = pattern.sub(lambda m: m.group(1) + body + m.group(2), text)
+            text = pattern.sub(lambda m: m.group(1) + "\n" + body + "\n" + m.group(2), text)
     return text
 
 
