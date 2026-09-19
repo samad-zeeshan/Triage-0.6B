@@ -47,7 +47,9 @@ def build():
                       temps, threshold, gold=r["gold"], teacher=teacher[r["id"]], note=note)
 
     entries = [make(r, "ticket") for r in rows]
-    short = [e for e in entries if len(e["email"]) < 700]
+    # Some source rows have no subject and read "Subject: nan". They stay in the
+    # picker, but the featured examples should not lead with a data gap.
+    short = [e for e in entries if len(e["email"]) < 700 and "Subject: nan" not in e["email"]]
     easy = max((e for e in short if not e["escalate"] and e["pred"] == e["gold"]), key=lambda e: e["ticket_confidence"])
     kept = [e for e in short if not e["escalate"]]
     # The ambiguous example is the least sure ticket the small model still keeps.
@@ -56,10 +58,16 @@ def build():
                    and e["teacher"] and e["teacher"]["priority"] == e["gold"]["priority"]]
     escalated = min(wrong_fixed or [e for e in short if e["escalate"]], key=lambda e: e["ticket_confidence"])
     trust_rows = data.read_jsonl(ROOT / f"eval/runs/trust-{level}.jsonl")
-    off = next(r for r in trust_rows if r["suite"] == "off_task" and r["id"] == "off-00")
     from triage.trust import OFF_TASK
-    off_entry = _entry("off-task", off["id"], OFF_TASK[0], off["pred"], off["logits"], off["conf"]["account_id"],
-                       temps, threshold, note="Not a support email. The model still answers in the ticket format.")
+    offs = [_entry("off-task", r["id"], OFF_TASK[int(r["id"].split("-")[1])], r["pred"], r["logits"],
+                   r["conf"]["account_id"], temps, threshold)
+            for r in trust_rows if r["suite"] == "off_task"]
+    # Show the off-task input the model is surest about, since that is the case the
+    # threshold does not catch.
+    off_entry = max(offs, key=lambda e: e["ticket_confidence"])
+    off_entry["note"] = ("Not a support email. The model still answers in the ticket format, "
+                         + ("and the cascade sends it to the teacher." if off_entry["escalate"]
+                            else "and is sure enough that the cascade keeps it."))
 
     picks = random.Random(3).sample(entries, 24)
     featured = {"easy": easy, "ambiguous": ambiguous, "escalated": escalated, "off_task": off_entry}

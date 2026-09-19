@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Triage, a small model that sorts support email</title>
+<meta name="description" content="A 600-million-parameter model reads a support email and returns topic, urgency and account number as JSON, says how sure it is, and hands the unsure ones to a bigger model. Recorded runs, replayed.">
+<link rel="icon" href="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+<link rel="stylesheet" href="kit.css">
+<script src="data/demo.js"></script>
+<script src="kit.js" defer></script>
+<style>
+/* Page-only styles. Every colour is a kit token, so the kit's measured contrast holds. */
+.d-buttons { display: flex; flex-wrap: wrap; gap: var(--k-s2); margin: var(--k-s4) 0 var(--k-s3); }
+.d-buttons button, .d-row button {
+  font: inherit; font-size: var(--k-text-sm); padding: var(--k-s2) var(--k-s4); min-height: 44px;
+  border: var(--k-bw-mid) solid var(--k-rule); border-radius: var(--k-r-pill);
+  background: var(--k-panel); color: var(--k-ink); cursor: pointer;
+}
+.d-buttons button[aria-pressed="true"] { background: var(--k-signal); color: var(--k-on-signal); border-color: var(--k-signal); }
+.d-buttons button:last-child { border-style: dashed; }
+.d-row { display: flex; flex-wrap: wrap; gap: var(--k-s2); align-items: center; margin-bottom: var(--k-s3); }
+.d-row select { font: inherit; font-size: var(--k-text-sm); min-height: 44px; max-width: 100%; flex: 1 1 16rem;
+  background: var(--k-panel); color: var(--k-ink); border: var(--k-bw-mid) solid var(--k-rule); border-radius: var(--k-r-sm); padding: 0 var(--k-s2); }
+.d-paste { width: 100%; min-height: 6rem; font: inherit; font-size: var(--k-text-sm); background: var(--k-panel); color: var(--k-ink);
+  border: var(--k-bw-mid) solid var(--k-rule); border-radius: var(--k-r-sm); padding: var(--k-s2); box-sizing: border-box; }
+.d-grid { display: grid; gap: var(--k-s4); grid-template-columns: 1fr; margin-top: var(--k-s4); }
+@media (min-width: 52em) { .d-grid { grid-template-columns: 1fr 1fr; } }
+.d-card { background: var(--k-panel); border: var(--k-bw-hair) solid var(--k-rule); border-radius: var(--k-r-md); padding: var(--k-s4); box-shadow: var(--k-elev-1); min-width: 0; }
+.d-card h3 { margin: 0 0 var(--k-s2); font-size: var(--k-text-sm); letter-spacing: var(--k-track-label); text-transform: uppercase; color: var(--k-slate); }
+.d-pre { white-space: pre-wrap; word-break: break-word; font-family: var(--k-font-mono); font-size: var(--k-text-sm); margin: 0; max-height: 16rem; overflow: auto; }
+.d-bar { margin: var(--k-s3) 0; }
+.d-bar__top { display: flex; justify-content: space-between; gap: var(--k-s2); font-size: var(--k-text-sm); }
+.d-bar__track { position: relative; height: 12px; background: var(--k-sunken); border-radius: var(--k-r-pill); margin-top: 4px; }
+.d-bar__fill { position: absolute; inset: 0 auto 0 0; background: var(--k-signal); border-radius: var(--k-r-pill); }
+.d-bar__fill--low { background: var(--k-ember); }
+.d-bar__mark { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--k-ink); }
+.d-verdict { margin-top: var(--k-s4); padding: var(--k-s3); border-radius: var(--k-r-sm); border: var(--k-bw-mid) solid var(--k-signal); background: var(--k-signal-wash); }
+.d-verdict--up { border-color: var(--k-ember); background: var(--k-ember-wash); }
+.d-verdict strong { display: block; }
+.d-meter { display: grid; grid-template-columns: 9rem 1fr 5.5rem; gap: var(--k-s2); align-items: center; font-size: var(--k-text-sm); margin: var(--k-s2) 0; }
+.d-meter__track { height: 12px; background: var(--k-sunken); border-radius: var(--k-r-pill); position: relative; }
+.d-meter__fill { position: absolute; inset: 0 auto 0 0; background: var(--k-slate); border-radius: var(--k-r-pill); min-width: 2px; }
+.d-meter__fill--now { background: var(--k-signal); }
+.d-num { font-family: var(--k-font-mono); text-align: right; }
+.d-key { font-size: var(--k-text-sm); color: var(--k-slate); margin-top: var(--k-s2); }
+.d-table { width: 100%; border-collapse: collapse; font-size: var(--k-text-sm); }
+.d-table th, .d-table td { text-align: left; padding: var(--k-s2); border-bottom: var(--k-bw-hair) solid var(--k-rule); }
+.d-fig img { width: 100%; height: auto; background: #fcfcfb; border-radius: var(--k-r-sm); }
+</style>
+</head>
+<body>
+
+<header class="k-hero" data-k-hero-wash>
+  <div class="k-hero__wash" data-k-wash></div>
+  <div class="k-container k-hero__inner">
+    <span class="k-hero__eyebrow">Project</span>
+    <h1 class="k-hero__title">Triage</h1>
+    <p class="k-hero__what">Triage reads a support email and returns its topic, urgency and account number as clean JSON. It is a 600-million-parameter model that runs on one ordinary graphics card with no internet. It says how sure it is, and the unsure emails go to a bigger model.</p>
+    <p class="k-hero__who">For the person who opens the support inbox in the morning and has to sort it before anyone can start work.</p>
+    <div class="k-hero__meta">
+      <span class="k-format-badge">Replays recorded runs. No model runs in your browser.</span>
+      <a href="data/demo.json">The data behind this page</a>
+      <button class="k-theme-toggle" type="button" data-k-theme-toggle>Theme: <span data-k-theme-label>Auto</span></button>
+    </div>
+  </div>
+</header>
+
+<main class="k-container">
+
+  <section class="k-section" aria-labelledby="try-h">
+    <h2 class="k-section__title" id="try-h">Pick an email</h2>
+    <p class="k-section__lede">Each answer below is what the model wrote when it was run on this email, read back from the result files. The fourth button is not a support email at all.</p>
+
+    <div class="d-buttons" role="group" aria-label="Examples">
+      <button type="button" data-pick="easy" aria-pressed="false">Easy ticket</button>
+      <button type="button" data-pick="ambiguous" aria-pressed="false">Ambiguous ticket</button>
+      <button type="button" data-pick="escalated" aria-pressed="false">Escalated ticket</button>
+      <button type="button" data-pick="off_task" aria-pressed="false">Off-task input</button>
+    </div>
+    <div class="d-row">
+      <label class="k-sr-only" for="picker">More recorded tickets</label>
+      <select id="picker"><option value="">More recorded tickets</option></select>
+    </div>
+    <details>
+      <summary>Paste an email</summary>
+      <label class="k-sr-only" for="paste">Email text</label>
+      <textarea id="paste" class="d-paste" placeholder="Subject: ...&#10;&#10;Email: ..."></textarea>
+      <div class="d-row"><button type="button" id="paste-go">Look it up</button></div>
+      <p class="d-key" id="paste-msg" aria-live="polite"></p>
+    </details>
+
+    <div class="d-grid">
+      <div class="d-card">
+        <h3>Email</h3>
+        <pre class="d-pre" id="email"></pre>
+      </div>
+      <div class="d-card">
+        <h3>Small model answer</h3>
+        <pre class="d-pre" id="json"></pre>
+        <div id="bars"></div>
+        <div id="verdict" class="d-verdict" aria-live="polite"></div>
+        <p class="d-key" id="key"></p>
+      </div>
+    </div>
+
+    <div class="d-card" style="margin-top: var(--k-s4)">
+      <h3>Teacher cost per 1,000 tickets</h3>
+      <div id="meter"></div>
+      <p class="d-key" id="meter-note"></p>
+    </div>
+  </section>
+
+  <section class="k-section" aria-labelledby="num-h">
+    <h2 class="k-section__title" id="num-h">The numbers</h2>
+    <div class="k-claim-strip" id="claims"></div>
+    <table class="d-table" id="cascade-table" style="margin-top: var(--k-s5)"></table>
+    <div class="d-grid">
+      <figure class="d-fig"><img src="data/cascade.svg" alt="Accuracy against the share of tickets sent to the teacher. The line rises from the small model alone and passes the teacher-only point."><figcaption class="d-key">Accuracy as more tickets go to the teacher.</figcaption></figure>
+      <figure class="d-fig"><img src="data/reliability.svg" alt="Reliability diagram for category and priority before and after temperature scaling."><figcaption class="d-key">Stated confidence against how often it was right, before and after one temperature per field.</figcaption></figure>
+    </div>
+  </section>
+
+</main>
+
+<footer class="k-footer">
+  <div class="k-container k-footer__row">
+    <ul class="k-footer__links">
+      <li><a href="https://github.com/samad-zeeshan/Triage-0.6B">Repository</a></li>
+      <li><a href="https://github.com/samad-zeeshan/Triage-0.6B/tree/main/eval/results">Result files</a></li>
+    </ul>
+    <span class="k-format-badge">Recorded runs, CPU, llama.cpp</span>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  Kit.loadData('triage', 'data/demo.json').then(function (d) {
+    var esc = Kit.escapeHtml;
+    var all = {};
+    Object.keys(d.featured).forEach(function (k) { all[k] = d.featured[k]; });
+    d.tickets.forEach(function (t) { all[t.id] = t; });
+    var pct = function (x) { return (100 * x).toFixed(1); };
+    var money = function (x) { return '$' + x.toFixed(4); };
+
+    var picker = document.getElementById('picker');
+    d.tickets.forEach(function (t) {
+      var o = document.createElement('option');
+      o.value = t.id;
+      o.textContent = t.email.split('\n')[0].replace('Subject: ', '').slice(0, 70);
+      picker.appendChild(o);
+    });
+
+    function bar(label, value, note) {
+      var low = value < d.threshold;
+      return '<div class="d-bar"><div class="d-bar__top"><span>' + esc(label) + '</span><span class="d-num">' +
+        value.toFixed(2) + (note ? ' ' + esc(note) : '') + '</span></div><div class="d-bar__track">' +
+        '<div class="d-bar__fill' + (low ? ' d-bar__fill--low' : '') + '" style="width:' + (100 * value).toFixed(1) + '%"></div>' +
+        '<div class="d-bar__mark" style="left:' + (100 * d.threshold).toFixed(1) + '%" title="threshold"></div></div></div>';
+    }
+
+    function meter(e) {
+      var max = d.cost_per_1000.teacher;
+      var rows = [['Small model only', d.cost_per_1000.small, false], ['Cascade', d.cost_per_1000.cascade, true], ['Teacher only', d.cost_per_1000.teacher, false]];
+      document.getElementById('meter').innerHTML = rows.map(function (r) {
+        return '<div class="d-meter"><span>' + r[0] + '</span><div class="d-meter__track"><div class="d-meter__fill' + (r[2] ? ' d-meter__fill--now' : '') +
+          '" style="width:' + (100 * r[1] / max).toFixed(1) + '%"></div></div><span class="d-num">' + money(r[1]) + '</span></div>';
+      }).join('');
+      document.getElementById('meter-note').textContent = 'This email costs ' + (e.escalate ? money(d.teacher.cost_per_ticket) + ' because it goes to the teacher.' : '$0 because the small model keeps it.') +
+        ' The cascade sends ' + pct(d.escalated_share) + ' percent of tickets up. Prices are the teacher API list price, peak rate.';
+    }
+
+    function show(e, button) {
+      document.querySelectorAll('[data-pick]').forEach(function (b) { b.setAttribute('aria-pressed', String(b === button)); });
+      document.getElementById('email').textContent = e.email;
+      document.getElementById('json').textContent = JSON.stringify(e.pred, null, 1);
+      document.getElementById('bars').innerHTML =
+        bar('category: ' + (e.pred.category || 'none'), e.confidence.category.chosen) +
+        bar('priority: ' + (e.pred.priority || 'none'), e.confidence.priority.chosen) +
+        bar('account number: ' + (e.pred.account_id || 'none'), e.account_confidence, '(not rescaled)');
+      var v = document.getElementById('verdict');
+      v.className = 'd-verdict' + (e.escalate ? ' d-verdict--up' : '');
+      var line = e.escalate
+        ? '<strong>Sent to the teacher</strong>Confidence ' + e.ticket_confidence.toFixed(2) + ' is below the threshold of ' + d.threshold.toFixed(3) + '.'
+        : '<strong>Kept by the small model</strong>Confidence ' + e.ticket_confidence.toFixed(2) + ' clears the threshold of ' + d.threshold.toFixed(3) + '.';
+      if (e.escalate && e.teacher) { line += '<br>Teacher answer: <span class="k-mono">' + esc(JSON.stringify(e.teacher)) + '</span>'; }
+      v.innerHTML = line;
+      var key = document.getElementById('key');
+      if (e.gold) {
+        var same = e.pred.category === e.gold.category && e.pred.priority === e.gold.priority;
+        key.textContent = 'Answer key: ' + e.gold.category + ', ' + e.gold.priority + '. The small model ' + (same ? 'matches it.' : 'does not match it.');
+      } else {
+        key.textContent = e.note || '';
+      }
+      meter(e);
+    }
+
+    document.querySelectorAll('[data-pick]').forEach(function (b) {
+      b.addEventListener('click', function () { show(d.featured[b.getAttribute('data-pick')], b); });
+    });
+    picker.addEventListener('change', function () { if (picker.value) { show(all[picker.value], null); } });
+    document.getElementById('paste-go').addEventListener('click', function () {
+      var text = document.getElementById('paste').value.trim().replace(/\s+/g, ' ');
+      var hit = Object.keys(all).map(function (k) { return all[k]; }).filter(function (e) { return e.email.trim().replace(/\s+/g, ' ') === text; })[0];
+      var msg = document.getElementById('paste-msg');
+      if (hit) { msg.textContent = 'Found in the recorded runs.'; show(hit, null); }
+      else { msg.textContent = 'That email is not in the recorded runs. This page cannot run the model. Clone the repository and run make serve to try your own.'; }
+    });
+
+    var h = d.headline;
+    document.getElementById('claims').innerHTML = [
+      ['Urgency right before training', h.base_priority.toFixed(1), 'percent', 'Always guessing high scores ' + h.trivial_priority.toFixed(1)],
+      ['Urgency right after training', h.tuned_priority.toFixed(1), 'percent', '95 percent interval ' + h.tuned_priority_ci[0].toFixed(1) + ' to ' + h.tuned_priority_ci[1].toFixed(1)],
+      ['Sent to the teacher', pct(d.escalated_share), 'percent', money(d.cost_per_1000.cascade) + ' per 1,000 tickets']
+    ].map(function (c) {
+      return '<div class="k-claim"><span class="k-claim__label">' + c[0] + '</span><span class="k-claim__value">' + c[1] +
+        '</span> <span class="k-claim__unit">' + c[2] + '</span><span class="k-claim__source">' + c[3] + '</span></div>';
+    }).join('');
+    var c = d.cascade;
+    document.getElementById('cascade-table').innerHTML = '<caption class="k-sr-only">Cascade routes compared</caption>' +
+      '<thead><tr><th scope="col">Route</th><th scope="col">Sent up</th><th scope="col">Both fields right</th><th scope="col">Per 1,000</th></tr></thead><tbody>' +
+      [['Small model only', 0, c.student.acc, 0], ['Cascade', c.chosen.escalated, c.chosen.acc, c.chosen.cost_per_1000], ['Teacher only', 1, c.teacher.acc, c.teacher.cost_per_1000]]
+        .map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + pct(r[1]) + '%</td><td>' + pct(r[2]) + '%</td><td>' + money(r[3]) + '</td></tr>'; }).join('') + '</tbody>';
+
+    show(d.featured.easy, document.querySelector('[data-pick="easy"]'));
+  })['catch'](function (err) { console.error(err); });
+});
+</script>
+</body>
+</html>
