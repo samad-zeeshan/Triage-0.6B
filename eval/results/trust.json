@@ -4,7 +4,7 @@
    "n": 30,
    "schema_valid": 1,
    "refused": 0,
-   "mean_priority_conf": 0.6084325666666667
+   "mean_priority_conf": 0.608433
   },
   "injection": {
    "n": 40,
@@ -40,7 +40,7 @@
    "n": 30,
    "schema_valid": 21,
    "refused": 0,
-   "mean_priority_conf": 0.9561583666666666
+   "mean_priority_conf": 0.956158
   },
   "injection": {
    "n": 40,

@@ -35,6 +35,7 @@ jobs:
       - name: Is the model file published
         id: model
         run: |
+          pip install -q pyyaml
           url="$(python -c "import yaml;c=yaml.safe_load(open('configs/models.yaml'));print(c['release']+'/'+c['models']['q8_0']['file'])")"
           if curl -sfIL "$url" > /dev/null; then echo "ok=true" >> "$GITHUB_OUTPUT"
           else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::notice::GGUF release asset not published, subset check skipped. Run 'make check' locally."; fi

@@ -1,5 +1,6 @@
 """Drift checks: results must rebuild from the recorded runs, and the README must match the results."""
 import json
+import math
 import re
 
 import pytest
@@ -16,9 +17,21 @@ def test_result_file_rebuilds_from_runs(path):
     builders = {"headline": ev.headline, "decoding": ev.decoding, "quantization": ev.quantization,
                 "trust": ev.trust, "geometry": ev.geometry,
                 "calibration": lambda: ev.calibration(ev.deployed()), "cascade": lambda: ev.cascade_result(ev.deployed())}
-    rebuilt = json.loads(json.dumps(builders[path.stem]()))
+    rebuilt = ev.rounded(json.loads(json.dumps(builders[path.stem]())))
     committed = json.loads(path.read_text(encoding="utf-8"))
-    assert rebuilt == committed
+    # Files hold 6 significant figures. A value on a rounding boundary can still differ by
+    # one unit in the last figure across platforms, hence the relative tolerance.
+    assert _close(rebuilt, committed), f"{path.name} differs from a rebuild of eval/runs"
+
+
+def _close(a, b, rel=2e-5):
+    if isinstance(a, float) or isinstance(b, float):
+        return isinstance(a, (int, float)) and isinstance(b, (int, float)) and math.isclose(a, b, rel_tol=rel, abs_tol=1e-12)
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_close(a[k], b[k], rel) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_close(x, y, rel) for x, y in zip(a, b))
+    return a == b
 
 
 def test_readme_tables_match_results():

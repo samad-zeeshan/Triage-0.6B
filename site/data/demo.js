@@ -10,14 +10,14 @@ window.DEMO_DATA["triage"] = {
   "served": [
    "deepseek-flash"
   ],
-  "cost_per_ticket": 0.00010513949999999999
+  "cost_per_ticket": 0.000105139
  },
  "cost_per_1000": {
   "small": 0.0,
-  "cascade": 0.07079393,
-  "teacher": 0.1051395
+  "cascade": 0.0707939,
+  "teacher": 0.105139
  },
- "escalated_share": 0.6733333333333333,
+ "escalated_share": 0.673333,
  "headline": {
   "base_priority": 38.3,
   "tuned_priority": 87.2,
@@ -30,25 +30,25 @@ window.DEMO_DATA["triage"] = {
  },
  "cascade": {
   "student": {
-   "category_acc": 0.8958333333333334,
+   "category_acc": 0.895833,
    "priority_acc": 0.8725,
    "acc": 0.7875,
    "cost_per_1000": 0.0
   },
   "chosen": {
    "threshold": 0.885,
-   "escalated": 0.6733333333333333,
-   "acc": 0.8283333333333334,
-   "kept_acc": 0.9795918367346939,
-   "category_acc": 0.9066666666666666,
-   "priority_acc": 0.9141666666666667,
-   "cost_per_1000": 0.07079393
+   "escalated": 0.673333,
+   "acc": 0.828333,
+   "kept_acc": 0.979592,
+   "category_acc": 0.906667,
+   "priority_acc": 0.914167,
+   "cost_per_1000": 0.0707939
   },
   "teacher": {
    "category_acc": 0.905,
-   "priority_acc": 0.9133333333333333,
-   "acc": 0.8258333333333333,
-   "cost_per_1000": 0.1051395
+   "priority_acc": 0.913333,
+   "acc": 0.825833,
+   "cost_per_1000": 0.105139
   }
  },
  "featured": {

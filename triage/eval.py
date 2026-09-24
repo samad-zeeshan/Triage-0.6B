@@ -322,6 +322,23 @@ def deployed():
     return yaml.safe_load(open(ROOT / "configs/models.yaml", encoding="utf-8"))["deployed"]
 
 
+DIGITS = 6
+
+
+def rounded(obj, ndigits=DIGITS):
+    """Round every float to 6 significant figures so result files match on Windows and Linux.
+
+    Summation order differs between numpy builds and moves the last digits. Significant
+    figures rather than decimals, because p-values near 1e-100 must not become 0."""
+    if isinstance(obj, float):
+        return float(f"{obj:.{ndigits}g}")
+    if isinstance(obj, dict):
+        return {k: rounded(v, ndigits) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [rounded(v, ndigits) for v in obj]
+    return obj
+
+
 def build():
     RESULTS.mkdir(parents=True, exist_ok=True)
     deployed_level = deployed()
@@ -330,7 +347,8 @@ def build():
                "cascade": lambda: cascade_result(deployed_level),
                "quantization": quantization, "trust": trust, "geometry": geometry}
     for name, fn in outputs.items():
-        (RESULTS / f"{name}.json").write_text(json.dumps(fn(), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+        text = json.dumps(rounded(fn()), indent=1, ensure_ascii=False) + "\n"
+        (RESULTS / f"{name}.json").write_text(text, encoding="utf-8", newline="\n")
         print("wrote", name)
 
 

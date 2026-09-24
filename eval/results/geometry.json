@@ -5,21 +5,21 @@
   {
    "neighbourhood": "mixed, under 0.5",
    "n": 215,
-   "priority_acc": 0.7209302325581395,
-   "mean_confidence": 0.787140288372093
+   "priority_acc": 0.72093,
+   "mean_confidence": 0.78714
   },
   {
    "neighbourhood": "partly mixed, 0.5 to 0.8",
    "n": 295,
-   "priority_acc": 0.7796610169491526,
-   "mean_confidence": 0.8090241694915254
+   "priority_acc": 0.779661,
+   "mean_confidence": 0.809024
   },
   {
    "neighbourhood": "clean, 0.8 and up",
    "n": 690,
-   "priority_acc": 0.9594202898550724,
-   "mean_confidence": 0.9344391130434782
+   "priority_acc": 0.95942,
+   "mean_confidence": 0.934439
   }
  ],
- "corr_purity_confidence": 0.45928706268323866
+ "corr_purity_confidence": 0.459287
 }

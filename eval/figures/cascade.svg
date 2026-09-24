@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="531.180605pt" height="267.160781pt" viewBox="0 0 531.180605 267.160781" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="531.180483pt" height="267.160781pt" viewBox="0 0 531.180483 267.160781" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <defs>
   <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
  </defs>
  <g id="figure_1">
   <g id="patch_1">
    <path d="M 0 267.160781 
-L 531.180605 267.160781 
-L 531.180605 0 
+L 531.180483 267.160781 
+L 531.180483 0 
 L 0 0 
 z
 " style="fill: #fcfcfb"/>
@@ -1016,29 +1016,29 @@ L 59.187599 218.88
 L 59.187599 218.88 
 L 59.187599 218.88 
 L 59.187599 218.88 
-L 59.491963 215.343158 
+L 59.491963 215.344573 
 L 61.013781 208.269474 
-L 64.970509 211.806316 
+L 64.970496 211.804901 
 L 76.536327 176.437895 
-L 95.102509 137.532632 
-L 123.408327 109.237895 
-L 157.19269 77.406316 
+L 95.102496 137.531217 
+L 123.408205 109.239309 
+L 157.192569 77.407731 
 L 185.194145 49.111579 
-L 213.804327 34.964211 
-L 245.458145 24.353684 
-L 279.546872 17.28 
-L 305.113418 45.574737 
+L 213.804205 34.965625 
+L 245.458145 24.355099 
+L 279.54675 17.28 
+L 305.113296 45.576152 
 L 317.592327 49.111579 
-L 328.245054 45.574737 
-L 336.158509 49.111579 
-L 346.202509 52.648421 
+L 328.245176 45.576152 
+L 336.158387 49.111579 
+L 346.202387 52.647006 
 L 355.942145 49.111579 
-L 366.899236 52.648421 
-L 378.769418 52.648421 
-L 388.509054 59.722105 
-L 400.074872 56.185263 
-L 416.206145 56.185263 
-L 424.423963 56.185263 
+L 366.899236 52.647006 
+L 378.769418 52.647006 
+L 388.509176 59.722105 
+L 400.07475 56.186678 
+L 416.206145 56.186678 
+L 424.423963 56.186678 
 " clip-path="url(#p4619ec8a5d)" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
@@ -1066,12 +1066,12 @@ z
 " style="stroke: #fcfcfb; stroke-width: 2"/>
     </defs>
     <g clip-path="url(#p4619ec8a5d)">
-     <use xlink:href="#m97aea0719e" x="305.113418" y="45.574737" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 2"/>
+     <use xlink:href="#m97aea0719e" x="305.113296" y="45.576152" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 2"/>
     </g>
    </g>
    <g id="text_14">
     <!-- chosen: 67% escalated, $0.071 per 1,000 -->
-    <g style="fill: #0b0b0b" transform="translate(315.113418 67.574737) scale(0.1 -0.1)">
+    <g style="fill: #0b0b0b" transform="translate(315.113296 67.576152) scale(0.1 -0.1)">
      <defs>
       <path id="DejaVuSans-1d" d="M 750 794 
 L 1409 794 
@@ -1246,7 +1246,7 @@ z
 " style="stroke: #1baf7a"/>
     </defs>
     <g clip-path="url(#p4619ec8a5d)">
-     <use xlink:href="#mb77239a9f4" x="424.423963" y="56.185263" style="fill: #1baf7a; stroke: #1baf7a"/>
+     <use xlink:href="#mb77239a9f4" x="424.423963" y="56.186678" style="fill: #1baf7a; stroke: #1baf7a"/>
     </g>
    </g>
    <g id="legend_1">

@@ -27,9 +27,9 @@
    },
    "size_mb": 1198,
    "agrees_with_q8_0": 0.985,
-   "priority_vs_q8_0_p": 0.7744140624999998,
+   "priority_vs_q8_0_p": 0.774414,
    "priority_changed_vs_q8_0": 13,
-   "priority_ece": 0.014134665405965273,
+   "priority_ece": 0.0141347,
    "latency_ms": 1481.3,
    "leak_completion_train": {
     "hits": 0,
@@ -77,7 +77,7 @@
    "agrees_with_q8_0": 1.0,
    "priority_vs_q8_0_p": 1.0,
    "priority_changed_vs_q8_0": 0,
-   "priority_ece": 0.021270717018439047,
+   "priority_ece": 0.0212707,
    "latency_ms": 1004.6,
    "leak_completion_train": {
     "hits": 0,
@@ -125,7 +125,7 @@
    "agrees_with_q8_0": 0.91,
    "priority_vs_q8_0_p": 1.0,
    "priority_changed_vs_q8_0": 79,
-   "priority_ece": 0.03310897217935585,
+   "priority_ece": 0.033109,
    "latency_ms": 922.5,
    "leak_completion_train": {
     "hits": 0,
@@ -171,9 +171,9 @@
    },
    "size_mb": 397,
    "agrees_with_q8_0": 0.725,
-   "priority_vs_q8_0_p": 2.9546302447707693e-36,
+   "priority_vs_q8_0_p": 2.95463e-36,
    "priority_changed_vs_q8_0": 268,
-   "priority_ece": 0.1537001152256029,
+   "priority_ece": 0.1537,
    "latency_ms": 648.5,
    "leak_completion_train": {
     "hits": 0,
@@ -219,9 +219,9 @@
    },
    "size_mb": 639,
    "agrees_with_q8_0": 0.2883,
-   "priority_vs_q8_0_p": 7.008218564104169e-128,
+   "priority_vs_q8_0_p": 7.00822e-128,
    "priority_changed_vs_q8_0": 715,
-   "priority_ece": 0.2756314689581787,
+   "priority_ece": 0.275631,
    "latency_ms": 1111.8,
    "leak_completion_train": {
     "hits": 0,
